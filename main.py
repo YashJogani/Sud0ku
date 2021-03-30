@@ -29,6 +29,7 @@ dark_mode_rect = pygame.Rect(0, 650, 34, 18)
 theme_color = 25
 dark_mode = True
 button_x = 0
+theme_transition_start = False
 
 font_location = os.path.join(os.path.abspath("."), "Roboto-Bold.ttf")
 
@@ -53,8 +54,6 @@ solved_board = sudoku.Solve(board, True)
 
 while solved_board.find_empty():
     next(solved_board)
-
-theme_transition = LinearAnimation(230, 20)
 
 ## stores temporary number entered by user
 user_input = {}
@@ -190,24 +189,21 @@ def calculate_time():
 
 def redraw():
     ## render whole application
-    global time_passed, dark_mode, theme_color
+    global time_passed, dark_mode, theme_transition_start, theme_color
 
     if dark_mode:
-        if theme_color > 25:
-            theme_color -= next(theme_transition)
-        if theme_color < 25:
-            theme_color = 25
         text_color = (255, 255, 255)
         switch_color = pygame.Color('dodgerblue')
 
     else:
-        if theme_color < 255:
-            theme_color += next(theme_transition)
-        if theme_color > 255:
-            theme_color = 255
         text_color = (0, 0, 0)
         switch_color = pygame.Color('black')
-
+    
+    if theme_transition_start:
+        theme_color += next(theme_transition)
+        if theme_transition.i == 21:
+            theme_transition_start = False
+    
     WIN.fill((theme_color, theme_color, theme_color))
 
     if not finish:
@@ -249,7 +245,11 @@ while True:
             ## change the theme on hitting space
             if event.key == pygame.K_SPACE:
                 dark_mode = not dark_mode
-                theme_transition.i = 1
+                theme_transition_start = True
+                if dark_mode:
+                    theme_transition = LinearAnimation(25 - theme_color)
+                else:
+                    theme_transition = LinearAnimation(255 - theme_color)
 
             if event.key == pygame.K_RETURN:
                 if collision:
@@ -307,7 +307,11 @@ while True:
             if dark_mode_rect.collidepoint(pos):
                 ## turns dark mode on or off on hitting switch
                 dark_mode = not dark_mode
-                theme_transition.i = 1
+                theme_transition_start = True
+                if dark_mode:
+                    theme_transition = LinearAnimation(25 - theme_color)
+                else:
+                    theme_transition = LinearAnimation(255 - theme_color)
 
             if not start_solve:
                 for i in range(len(board)):
