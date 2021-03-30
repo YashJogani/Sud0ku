@@ -48,7 +48,7 @@ class BouncyAnimation:
 
 
 class LinearAnimation():
-    def __init__(self, length, loops):
+    def __init__(self, length, loops=20):
         self.loops = loops
         # number of pixels to add every loop
         self.n = int(abs(length/self.loops))
